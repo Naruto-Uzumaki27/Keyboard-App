@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "cuK2CLEY4fC7aiC2Moff60TnfxP5NoT+VQD0q5ZMPu7gl9vVPjRZVaJo+O2iBOMson8/gJ59woNei0kdlzGf0Q==",
+  "success": true,
+  "projectFilePath": "E:\\GitRepository\\Mine\\KeyboardApplicationLive\\KeyboardApplicationLive.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\diwak\\.nuget\\packages\\microsoft.web.webview2\\1.0.2651.64\\microsoft.web.webview2.1.0.2651.64.nupkg.sha512",
+    "C:\\Users\\diwak\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\6.0.21\\microsoft.aspnetcore.app.runtime.win-x64.6.0.21.nupkg.sha512",
+    "C:\\Users\\diwak\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\6.0.21\\microsoft.windowsdesktop.app.runtime.win-x64.6.0.21.nupkg.sha512",
+    "C:\\Users\\diwak\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\6.0.21\\microsoft.netcore.app.runtime.win-x64.6.0.21.nupkg.sha512"
+  ],
+  "logs": []
+}

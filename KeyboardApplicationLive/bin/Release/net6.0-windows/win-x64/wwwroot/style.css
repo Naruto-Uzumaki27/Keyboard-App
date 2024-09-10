@@ -1,0 +1,166 @@
+/* style.css */
+.text-area {
+    padding: 5px;
+    width: calc(100vw - 30px);
+    height: calc(100vh - 295px);
+    height: calc(100vh - 100px);
+}
+
+.keyboard {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 5px 0;
+    background: #004134;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    transition: bottom 0.4s;
+}
+
+keyboard_name_change_class:disabled {
+    background: #e0e0e0 !important;
+}
+
+.keyboard_name_change_class {
+    width: 12%;
+    padding: 6px 15px;
+    border-radius: 5px;
+}
+
+/*.keyboard--hidden {
+	bottom: -100%;
+}*/
+.keyboard__keys {
+    text-align: center;
+}
+
+.change-language {
+    height: 39px;
+    margin-top: 5px;
+    padding: 10px 5px;
+    cursor: pointer;
+}
+
+.clear-screen {
+    padding: 3px 20px;
+    float: left;
+    clear: both;
+    margin-left: 1.5% !important;
+    cursor: pointer;
+    border-radius: 4px;
+    background: gray;
+    color: white;
+    border-color: #fff;
+}
+
+    .clear-screen:hover {
+        background: #fff;
+        color: gray;
+        border-color: gray;
+    }
+
+    .keyboard-actions {
+        text-align: right;
+        padding: 0.5%;
+        margin-right: 1.5%;
+    }
+
+.restore-action {
+    padding: 3px 10px;
+    cursor: pointer;
+    margin-left: 10px;
+    border-radius: 4px;
+    background: #004134;
+    color: white;
+    border-color: #fff;
+}
+.delete-action {
+    padding: 3px 10px;
+    cursor: pointer;
+    margin-left: 10px;
+    border-radius: 4px;
+    background: #ff0000;
+    border: 1px solid white;
+    color: white;
+}
+
+.keyboard__key:hover {
+    background: #447c71;
+}
+
+.restore-action:hover {
+    background: #fff;
+    color: #004134;
+    border-color: #004134;
+}
+
+.delete-action:hover {
+    background: #fff;
+    color: #ff0000;
+    border-color: #ff0000;
+}
+
+.keyboard__key {
+    height: 45px;
+    width: 5.2%;
+    max-width: 90px;
+    margin: 3px;
+    border-radius: 3px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    vertical-align: top;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+    .keyboard__key:active {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+.keyboard__key--wide {
+    width: 12%;
+}
+
+.keyboard__key--extra--wide {
+    width: 36%;
+    max-width: 500px;
+}
+
+.keyboard__key--activatable::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+}
+
+.keyboard__key--active::after {
+    background: #08ff00;
+}
+
+.keyboard__key--dark {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.custom-prompt {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 300px;
+    display: block;
+}

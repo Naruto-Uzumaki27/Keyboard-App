@@ -1,0 +1,16 @@
+25-08-2024 23:33:42: Application started.
+25-08-2024 23:33:42: Application folder already has full control access.
+25-08-2024 23:38:18: Application started.
+25-08-2024 23:38:18: Application folder already has full control access.
+25-08-2024 23:45:06: Application started.
+25-08-2024 23:45:07: Application folder already has full control access.
+26-08-2024 00:02:34: Application started.
+26-08-2024 00:02:34: Application folder already has full control access.
+26-08-2024 00:02:53: Application started.
+26-08-2024 00:02:53: Application folder already has full control access.
+26-08-2024 00:53:39: Application folder already has full control access.
+26-08-2024 00:54:45: Application folder already has full control access.
+26-08-2024 00:55:08: Application folder already has full control access.
+26-08-2024 00:55:31: Application folder already has full control access.
+26-08-2024 00:59:07: Application folder already has full control access.
+26-08-2024 01:02:52: Application folder already has full control access.

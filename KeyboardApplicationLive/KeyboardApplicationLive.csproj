@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <Platforms>AnyCPU;x86;x64</Platforms>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ApplicationIcon>wwwroot\Keyboard-icon.ico</ApplicationIcon> 
+  </PropertyGroup> 
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2651.64" />
+  </ItemGroup>
+
+  <!-- Include wwwroot files in the output directory -->
+  <ItemGroup>
+  <Content Include="wwwroot\**\*">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
+   
+  <ItemGroup> 
+    <None Remove="wwwroot\EBWebView\Manage.json" />
+    <None Remove="wwwroot\keyboard-icon.ico" />
+    <None Remove="wwwroot\Keyboards.json" />
+    <None Remove="wwwroot\temp.json" />
+  </ItemGroup>
+   
+  <ItemGroup>
+    <Folder Include="wwwroot\Downloads\" />
+  </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties wwwroot_4managefolder_4keyboards_1json__JsonSchema="json" /></VisualStudio></ProjectExtensions>
+
+
+</Project>
