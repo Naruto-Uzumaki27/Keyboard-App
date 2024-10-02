@@ -26,16 +26,18 @@
 </ItemGroup>
    
   <ItemGroup> 
+    <None Remove="wwwroot\bootstrap\jquery\jquery.js" /> 
     <None Remove="wwwroot\EBWebView\Manage.json" />
     <None Remove="wwwroot\keyboard-icon.ico" />
     <None Remove="wwwroot\Keyboards.json" />
+    <None Remove="wwwroot\ManageFolder\MainKeyboards.json" />
     <None Remove="wwwroot\temp.json" />
   </ItemGroup>
    
   <ItemGroup>
     <Folder Include="wwwroot\Downloads\" />
   </ItemGroup>
-  <ProjectExtensions><VisualStudio><UserProperties wwwroot_4managefolder_4keyboards_1json__JsonSchema="json" /></VisualStudio></ProjectExtensions>
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 
 </Project>

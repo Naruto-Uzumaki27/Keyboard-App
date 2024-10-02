@@ -3,28 +3,179 @@
 <html lang="en">
 
 <head>
-	<meta name="viewport"
-		content="width=device-width, 
+    <meta name="viewport" content="width=device-width,
 		initial-scale=1.0" />
-	<link rel="stylesheet" href="style.css" />
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-	<title>
-		Virtual Keyboard
-	</title>
-</head>
+    <link rel="stylesheet" href="style.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <!--<link href="./bootstrap/css/bootstrap.min.css" rel="stylesheet" />-->
+    <!-- Bootstrap 4 CSS -->
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="Modules/bootstrap.css">
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>
+        Virtual Keyboard
+    </title>
+</head>
 <body>
-	<textarea name="anytext"
-		class="text-area use-keyboard-input"
-		placeholder="Click me!">
-	</textarea>
-<!--	
-	<script src="./Tamil.js"></script>
-	<script src="./English.js"></script>
-	<script src="./Malayalam.js"></script>
-	<script src="./Template.js"></script>
---> 
-	<script src="./script.js"></script>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="#">KEYBOARD &nbsp; <i class="fa-regular fa-keyboard"
+                style="font-size: 22px;"></i></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+            aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <select id="mains_changer" class="change-language form-control">
+        </select>
+        <i class="fa-solid fa-arrow-right"></i>
+        <select id="scripts_changer" data-mainkeyboard="1" class="change-language form-control">
+        </select>
+        <button title="Add new Keyboard" class="btn" id="add_newkeyboard"><i class="fa-solid fa-plus"></i> &nbsp;Add</button>
+        <button title="Save Keyboard" class="btn" id="save_keyboard_current"><i class="far fa-save"></i> &nbsp;Save</button>
+        <button title="Download Keyboard" class="btn" id="download_option"><i class="fa-solid fa-file-arrow-down"></i> &nbsp;Download</button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+        </div>
+    </nav>
+    <div class="main-div">
+        <div id="keyinputs_div">
+            <textarea name="anytext" class="text-area use-keyboard-input form-control"
+                placeholder="Click me!"></textarea>
+        </div>
+    </div>
+
+    <!-- Bootstrap Modal Template -->
+    <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true"
+        data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customModalLabel">Change Key &nbsp; <i style="font-size:12px"
+                            class="fa-solid fa-gear"></i></h5>
+                </div>
+                <div class="modal-body">
+                    <div class="change-character-dialog row">
+                        <div class="col-6">
+                            <label id="charLabel1">Char: </label>
+                            <input id="charInput1" class="form-control" placeholder="Char">
+                        </div>
+                        <div class="col-6">
+                            <label id="charLabel2">Unicode: </label>
+                            <div class="" id="">
+                                <div class="input-group">
+                                    <div class="input-group-prepend ">
+                                        <span class="input-group-text">/u</span>
+                                    </div>
+                                    <input id="charInput2" class="form-control numbers-only" placeholder="xxxx">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="prev" id="previous-mappings">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="submitButton">Update</button>
+                    <button type="button" class="btn btn-secondary" id="cancelButton">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="customModal2" tabindex="-1" role="dialog" aria-labelledby="customModal2Label"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customModal2Label">Create Keyboard</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body change-character-dialog">
+                    <div class="change-character-dialog  form-group">
+                        <label for="languageName">Language Name</label>
+                        <input type="text" class="form-control" id="languageName" placeholder="Enter language name">
+                    </div>
+                    <div class="change-character-dialog  form-group">
+                        <label for="scriptName">Script Name</label>
+                        <input type="text" class="form-control" id="scriptName" placeholder="Enter script name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="createnewkeyboard">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="customModal3" tabindex="-1" role="dialog" aria-labelledby="customModal3Label"
+        aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customModal3Label">Comp Keys</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="height: 600px;">
+                    <!-- Combination and Value Input Section -->
+                    <div class="form-group d-flex">
+                        <label for="combination">Combination</label>
+                        <input type="text" class="form-control" id="combination" placeholder="Enter combination">
+                    </div>
+                    <div class="form-group d-flex">
+                        <label for="value">Value</label>
+                        <input type="text" class="form-control" id="value" placeholder="Enter value">
+                    </div>
+                    <div class="" style="text-align: right;">
+                        <button type="button" class="btn btn-primary" id="addcompButton">Add</button>
+                        <button type="button" style="display: none;" class="btn btn-success"
+                            id="savecompButton">Save</button>
+                        <button type="button" style="display: none;" class="btn btn-secondary"
+                            id="cancelcompButton">Cancel</button>
+                    </div>
+                    <!-- Table -->
+                    <div class="comp_keys_div">
+                        <table id="comp_keys_table" class="table mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Combinations</th>
+                                    <th>Value</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer"></div>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="UpdateCompToDB">Update</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- jQuery (required for Bootstrap 4 JavaScript) -->
+    <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> -->
+    <script src="Modules/jquery.js"></script>
+
+    <!-- Popper.js (required for Bootstrap 4 JavaScript) -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script> -->
+    <script src="Modules/popper.js"></script>
+
+    <!-- Bootstrap 4 JavaScript -->
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+    <script src="Modules/boostrap.js"></script>
+
+    <script src="./script.js"></script>
 </body>
 
 </html>

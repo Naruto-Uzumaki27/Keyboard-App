@@ -1,9 +1,70 @@
 /* style.css */
-.text-area {
-    padding: 5px;
-    width: calc(100vw - 30px);
-    height: calc(100vh - 295px);
-    height: calc(100vh - 100px);
+.navbar {
+    height: 40px;
+    padding: 15px 20px;
+}
+
+.navbar-collapse {
+    justify-content: end !important;
+}
+
+.select,
+input,
+textarea {
+    border-radius: 0px !important;
+}
+
+.form-control {
+    border-radius: 0px !important;
+}
+
+.change-language {
+    width: 200px !important;
+    margin: 0px 5px !important;
+}
+
+.keyboard_add {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+}
+
+.keyboard_add input {
+    width: 10px !important;
+}
+
+.change-character-dialog input {
+    /*width: 100% !important;*/
+    max-width: 100% !important;
+}
+
+.input-group-text {
+    padding: 0px 10px !important;
+}
+
+.navbar button,
+select,
+input {
+    height: 33px !important;
+    padding: 5px 8px !important;
+    max-width: 25%;
+}
+
+.use-keyboard-input {
+    width: 100%;
+    padding: 10px 20px;
+    height: 60VH !important;
+}
+ 
+.bg-primary,
+.btn-primary {
+    background-color: #009a7c !important;
+    border: 2px solid white !important;
+}
+
+.main-div {
+    padding: 10PX 20PX;
+    background: #b7d5cf;
 }
 
 .keyboard {
@@ -11,74 +72,109 @@
     left: 0;
     bottom: 0;
     width: 100%;
-    padding: 5px 0;
+    padding: 30px 0;
     background: #004134;
     box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
     transition: bottom 0.4s;
 }
 
-keyboard_name_change_class:disabled {
+.keyboard_name_change_class:disabled {
     background: #e0e0e0 !important;
 }
 
-.keyboard_name_change_class {
-    width: 12%;
-    padding: 6px 15px;
-    border-radius: 5px;
+.comp_keys_div {
+    max-height: 400px !important;
+    overflow-y: auto;
 }
 
-/*.keyboard--hidden {
-	bottom: -100%;
-}*/
+.keyboard_name_change_class {
+    width: 20%;
+    padding: 1px 14px;
+    color: #737373;
+    margin-left: 5px;
+}
+
+.d-flex {
+    justify-content: space-between;
+}
+
+.d-flex input {
+    min-width: 50% !important;
+}
+
+.btn {
+    border-radius: 0px !important;
+}
+
 .keyboard__keys {
     text-align: center;
 }
 
-.change-language {
-    height: 39px;
-    margin-top: 5px;
-    padding: 10px 5px;
-    cursor: pointer;
-}
 
 .clear-screen {
     padding: 3px 20px;
     float: left;
     clear: both;
-    margin-left: 1.5% !important;
+    margin-left: 5px !important;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 0px !important;
     background: gray;
     color: white;
     border-color: #fff;
 }
 
-    .clear-screen:hover {
-        background: #fff;
-        color: gray;
-        border-color: gray;
-    }
+.clear-screen:hover {
+    background: #fff;
+    color: gray;
+    border-color: gray;
+}
 
-    .keyboard-actions {
-        text-align: right;
-        padding: 0.5%;
-        margin-right: 1.5%;
-    }
+.keyboard-actions {
+    text-align: right;
+    padding: 0.5%;
+    margin-right: 1.5%;
+}
+
+#add_newkeyboard, #save_keyboard_current, #download_option {
+    padding: 3px 10px;
+    cursor: pointer;
+    margin-right: 5px;
+    border-radius: 0px !important;
+    background: #009a7c !important;
+    color: white !important;
+    border-color: #fff !important;
+}
+
+.lang_changer_2 {
+    margin-bottom: 20px !important;
+    min-width: 250px !important;
+}
+
+#add_newkeyboard:hover, #save_keyboard_current:hover, #download_option:hover {
+    background: #fff !important;
+    color: #009a7c !important;
+    border: 1px solid #009a7c !important;
+}
 
 .restore-action {
     padding: 3px 10px;
     cursor: pointer;
-    margin-left: 10px;
-    border-radius: 4px;
-    background: #004134;
+    margin-left: 5px;
+    border-radius: 0px !important;
+    background: #009a7c;
     color: white;
     border-color: #fff;
 }
+
+#keyboards_changer {
+    width: 15%;
+}
+
 .delete-action {
     padding: 3px 10px;
     cursor: pointer;
-    margin-left: 10px;
-    border-radius: 4px;
+    margin-left: 5px;
+    border-radius: 0px !important;
     background: #ff0000;
     border: 1px solid white;
     color: white;
@@ -90,8 +186,8 @@ keyboard_name_change_class:disabled {
 
 .restore-action:hover {
     background: #fff;
-    color: #004134;
-    border-color: #004134;
+    color: #009a7c;
+    border-color: #009a7c;
 }
 
 .delete-action:hover {
@@ -101,7 +197,7 @@ keyboard_name_change_class:disabled {
 }
 
 .keyboard__key {
-    height: 45px;
+    height: 55px;
     width: 5.2%;
     max-width: 90px;
     margin: 3px;
@@ -121,9 +217,9 @@ keyboard_name_change_class:disabled {
     position: relative;
 }
 
-    .keyboard__key:active {
-        background: rgba(255, 255, 255, 0.12);
-    }
+.keyboard__key:active {
+    background: rgba(255, 255, 255, 0.12);
+}
 
 .keyboard__key--wide {
     width: 12%;
@@ -151,16 +247,17 @@ keyboard_name_change_class:disabled {
 
 .keyboard__key--dark {
     background: rgba(0, 0, 0, 0.25);
+    height: 35px !important;
 }
 
 .custom-prompt {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    background-color: #f9f9f9;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    width: 300px;
-    display: block;
+    position: fixed !important;
+    top: 10% !important;
+    right: 4% !important;
+    width: 25% !important;
+    background-color: snow !important;
+    border: 1px solid rgb(204, 204, 204) !important;
+    padding: 15px !important;
+    box-shadow: rgba(0, 0, 0.2, 0.2) 1px -1px 45px !important;
+    z-index: 1000 !important;
 }

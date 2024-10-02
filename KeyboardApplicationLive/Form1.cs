@@ -1,4 +1,5 @@
 using KeyBoardApplicationDemo.Models;
+using Microsoft.VisualBasic.Devices;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -16,11 +17,23 @@ namespace KeyboardApplicationLive
         public Form1()
         {
             InitializeComponent();
+            this.WindowState = FormWindowState.Maximized;
+            this.MinimizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;  // Prevent resizing
+            this.SizeChanged += Form1_SizeChanged;
             appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KeyboardApp");
             Directory.CreateDirectory(appDataPath);
             logFilePath = Path.Combine(appDataPath, "log.txt");
             this.Load += MainForm_Load;
         }
+        private void Form1_SizeChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized || this.WindowState == FormWindowState.Normal)
+            {
+                this.WindowState = FormWindowState.Maximized;  // Force it to stay maximized
+            }
+        }
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             // Root folder where your application's original files are located
@@ -231,11 +244,12 @@ namespace KeyboardApplicationLive
         //private static readonly string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "KeyboardApp");
         private static readonly string appDataPath = Application.StartupPath;
         private readonly string DownloadPath = Path.Combine(appDataPath, "wwwroot", "Downloads");
-        private readonly string ApplicationManager = Path.Combine(appDataPath, "wwwroot", "ManageFolder", "ApplicationManage.json");
-        private readonly string Keyboards = Path.Combine(appDataPath, "wwwroot", "ManageFolder", "Keyboards.json");
+        private readonly string ApplicationManagerPath = Path.Combine(appDataPath, "wwwroot", "ManageFolder", "ApplicationManage.json");
+        private readonly string MainKeyboardPath = Path.Combine(appDataPath, "wwwroot", "ManageFolder", "MainKeyboards.json");
+        private readonly string SubKeyboardPath = Path.Combine(appDataPath, "wwwroot", "ManageFolder", "SubKeyboards.json");
         public string ReadJsonFile(string filePath)
         {
-            return File.Exists(filePath) ? File.ReadAllText(filePath) : "{}";
+            return File.Exists(filePath) ? File.ReadAllText(filePath) : "[{}]";
         }
         public void WriteJsonFile(string filePath, string jsonData)
         {
@@ -249,35 +263,39 @@ namespace KeyboardApplicationLive
         {
             try
             {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
-                string keyboardsString = ReadJsonFile(Keyboards);
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string MainkeyboardsString = ReadJsonFile(MainKeyboardPath);
+                string ScriptkeyboardsString = ReadJsonFile(SubKeyboardPath);
 
                 var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
-                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardsModel>>(keyboardsString);
+                var MainkeyboardsData = JsonSerializer.Deserialize<List<MainKeyboardModel>>(MainkeyboardsString);
+                var ScriptkeyboardsData = JsonSerializer.Deserialize<List<KeyboardModel>>(ScriptkeyboardsString);
 
                 // Validate the JSON strings
-                if (string.IsNullOrWhiteSpace(applicationManagerString) || string.IsNullOrWhiteSpace(keyboardsString))
+                if (string.IsNullOrWhiteSpace(applicationManagerString) || string.IsNullOrWhiteSpace(ScriptkeyboardsString))
                 {
-                    // Handle error, maybe log it
                     return "{}";
                 }
 
-                if (applicationManagerData != null && keyboardsData != null)
+                if (applicationManagerData != null && MainkeyboardsData != null &&  ScriptkeyboardsData != null)
                 {
-                    var last = keyboardsData.Where(rec => rec.deleteflag == 0 && rec.keyboard_id == applicationManagerData.last_used_keyboard_id).ToList();
+                    var last = ScriptkeyboardsData.Where(rec => rec.deleteflag == 0 && rec.keyboard_id == applicationManagerData.last_used_keyboard_id).ToList();
                     if (last == null)
                     {
                         applicationManagerData.last_used_keyboard_id = 1;
-                        applicationManagerData.keyboard_name = "Template";
+                        applicationManagerData.last_used_main_id = 1;
+                        applicationManagerData.keyboard_name = "English";
                     }
 
                     var KeyboardsList = new
                     {
+                        main_id = applicationManagerData.last_used_main_id,
                         current_id = applicationManagerData.last_used_keyboard_id,
                         current_keyboard_name = applicationManagerData.keyboard_name,
                         list_of_languages = applicationManagerData.list_of_languages,
                         languages = applicationManagerData.languages,
-                        all_keyboards = keyboardsData.Where(rec => rec.deleteflag == 0).ToList()
+                        main_keyboards = MainkeyboardsData.Where(rec => rec.deleteflag == 0).ToList(),
+                        all_keyboards = ScriptkeyboardsData.Where(rec => rec.deleteflag == 0).ToList()
                     };
 
                     return JsonSerializer.Serialize(KeyboardsList);
@@ -295,13 +313,13 @@ namespace KeyboardApplicationLive
         {
             try
             {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
                 var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
                 if (applicationManagerData != null)
                 {
                     applicationManagerData.languages[pos] = newLanguage;
                     string updatedApplicationManagerString = JsonSerializer.Serialize(applicationManagerData);
-                    WriteJsonFile(ApplicationManager, updatedApplicationManagerString);
+                    WriteJsonFile(ApplicationManagerPath, updatedApplicationManagerString);
                 }
                 return true;
             }
@@ -316,16 +334,78 @@ namespace KeyboardApplicationLive
         {
             try
             {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
-                string keyboardsString = ReadJsonFile(Keyboards);
-                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardsModel>>(keyboardsString);
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string keyboardsString = ReadJsonFile(SubKeyboardPath);
+                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardModel>>(keyboardsString);
                 var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
                 if (applicationManagerData != null && keyboardsData != null)
                 {
-                    applicationManagerData.last_used_keyboard_id = keyboardId;
-                    applicationManagerData.keyboard_name = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId && rec.deleteflag == 0)?.keyboard_name;
+                    var make_default = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId && rec.deleteflag == 0);
+                    if (make_default != null)
+                    {
+                        applicationManagerData.last_used_keyboard_id = keyboardId;
+                        applicationManagerData.last_used_main_id = make_default.main_id;
+                        applicationManagerData.last_used_main_id = make_default.main_id;
+                        applicationManagerData.keyboard_name = make_default.keyboard_name;
+                    }
+                    else
+                    {
+                        applicationManagerData.last_used_keyboard_id = 1;
+                        applicationManagerData.last_used_main_id = 1;
+                        applicationManagerData.keyboard_name = "English";
+                    }
                     string updatedApplicationManagerString = JsonSerializer.Serialize(applicationManagerData);
-                    WriteJsonFile(ApplicationManager, updatedApplicationManagerString);
+                    WriteJsonFile(ApplicationManagerPath, updatedApplicationManagerString);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if necessary
+                File.AppendAllText(Path.Combine(appDataPath, "error_log.txt"), ex.ToString());
+                return false;
+            }
+        }
+        public bool DoDeleteKeyboardAsync(int keyboardId)
+        {
+            try
+            {
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string MainKeyboardString = ReadJsonFile(MainKeyboardPath);
+                string SubkeyboardsString = ReadJsonFile(SubKeyboardPath);
+
+                var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
+                var MainKeyboardData = JsonSerializer.Deserialize<List<MainKeyboardModel>>(MainKeyboardString);
+                var SubKeyboardData = JsonSerializer.Deserialize<List<KeyboardModel>>(SubkeyboardsString);
+
+                if (applicationManagerData != null && MainKeyboardData != null && SubKeyboardData != null)
+                {
+                    var keyboardToRemove = SubKeyboardData.FirstOrDefault(rec => rec.keyboard_id == keyboardId);
+                    if (keyboardToRemove != null)
+                    {
+                        SubKeyboardData.Remove(keyboardToRemove);
+                        var keyboards = SubKeyboardData.Where(rec=>rec.main_id == keyboardToRemove.main_id).ToList();
+                        if(keyboards.Count() == 0)
+                        {
+                            MainKeyboardData.RemoveAll(rec => rec.main_id == keyboardToRemove.main_id);
+                        }
+
+                        if (applicationManagerData.last_used_keyboard_id == keyboardId)
+                        {
+                            applicationManagerData.last_used_keyboard_id = 1;
+                            applicationManagerData.keyboard_name = SubKeyboardData.FirstOrDefault(rec => rec.keyboard_id == 1 && rec.deleteflag == 0)?.keyboard_name;
+                        }
+                    }
+
+                    // Serialize the updated data back to JSON strings
+                    string updatedApplicationManagerString = JsonSerializer.Serialize(applicationManagerData);
+                    string updatedMainKeyboardsString = JsonSerializer.Serialize(MainKeyboardData);
+                    string updatedSubKeyboardsString = JsonSerializer.Serialize(SubKeyboardData);
+
+                    // Write the updated JSON strings back to the files
+                    WriteJsonFile(ApplicationManagerPath, updatedApplicationManagerString);
+                    WriteJsonFile(MainKeyboardPath, updatedMainKeyboardsString);
+                    WriteJsonFile(SubKeyboardPath, updatedSubKeyboardsString);
                 }
                 return true;
             }
@@ -340,11 +420,11 @@ namespace KeyboardApplicationLive
         {
             try
             {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
-                string keyboardsString = ReadJsonFile(Keyboards);
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string keyboardsString = ReadJsonFile(SubKeyboardPath);
 
                 var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
-                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardsModel>>(keyboardsString);
+                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardModel>>(keyboardsString);
 
 
                 if (string.IsNullOrEmpty(keyboardName))
@@ -354,6 +434,8 @@ namespace KeyboardApplicationLive
 
                 if (applicationManagerData != null && keyboardsData != null)
                 {
+                    var prev = keyboardsData.FirstOrDefault(rec => rec.deleteflag == 0 && rec.keyboard_id != keyboardId);
+                    
                     var keyboardNames = keyboardsData.Where(rec => rec.deleteflag == 0 && rec.keyboard_id != keyboardId && rec.keyboard_name != null).Select(rec => rec.keyboard_name.ToLower());
                     var keyboardtorename = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId);
                     if (keyboardNames.Contains(keyboardName.ToLower()))
@@ -366,6 +448,12 @@ namespace KeyboardApplicationLive
                         if (applicationManagerData.last_used_keyboard_id == keyboardId)
                             applicationManagerData.keyboard_name = keyboardName;
                         keyboardtorename.keyboard_name = keyboardName;
+
+                        if (prev != null && applicationManagerData.list_of_languages.IndexOf((prev.keyboard_name)) != -1)
+                        {
+                            int index = applicationManagerData.list_of_languages.IndexOf((prev.keyboard_name));
+                            applicationManagerData.list_of_languages[index] = keyboardName;
+                        }
                     }
 
                     // Serialize the updated data back to JSON strings
@@ -373,8 +461,8 @@ namespace KeyboardApplicationLive
                     string updatedKeyboardsString = JsonSerializer.Serialize(keyboardsData);
 
                     // Write the updated JSON strings back to the files
-                    WriteJsonFile(ApplicationManager, updatedApplicationManagerString);
-                    WriteJsonFile(Keyboards, updatedKeyboardsString);
+                    WriteJsonFile(ApplicationManagerPath, updatedApplicationManagerString);
+                    WriteJsonFile(SubKeyboardPath, updatedKeyboardsString);
                 }
                 return 1;
             }
@@ -385,56 +473,15 @@ namespace KeyboardApplicationLive
                 return 0;
             }
         }
-        public bool DoDeleteKeyboardAsync(int keyboardId)
-        {
-            try
-            {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
-                string keyboardsString = ReadJsonFile(Keyboards);
-
-                var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
-                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardsModel>>(keyboardsString);
-
-                if (applicationManagerData != null && keyboardsData != null)
-                {
-                    if (applicationManagerData.last_used_keyboard_id == keyboardId)
-                    {
-                        applicationManagerData.last_used_keyboard_id = 1;
-                        applicationManagerData.keyboard_name = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == 1 && rec.deleteflag == 0)?.keyboard_name;
-                        string updatedApplicationManagerString = JsonSerializer.Serialize(applicationManagerData);
-                        WriteJsonFile(ApplicationManager, updatedApplicationManagerString);
-                    }
-
-                    var keyboardToRemove = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId);
-                    if (keyboardToRemove != null)
-                    {
-                        keyboardToRemove.deleteflag = 1;
-                    }
-
-                    // Serialize the updated data back to JSON strings
-                    string updatedKeyboardsString = JsonSerializer.Serialize(keyboardsData);
-
-                    // Write the updated JSON strings back to the files
-                    WriteJsonFile(Keyboards, updatedKeyboardsString);
-                }
-                return true;
-            }
-            catch (Exception ex)
-            {
-                // Log the exception if necessary
-                File.AppendAllText(Path.Combine(appDataPath, "error_log.txt"), ex.ToString());
-                return false;
-            }
-        }
         public bool DoRestoreDefaultAsync(int keyboardId)
         {
             try
             {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
-                string keyboardsString = ReadJsonFile(Keyboards);
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string keyboardsString = ReadJsonFile(SubKeyboardPath);
 
                 var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
-                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardsModel>>(keyboardsString);
+                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardModel>>(keyboardsString);
 
                 if (applicationManagerData != null && keyboardsData != null)
                 {
@@ -458,7 +505,7 @@ namespace KeyboardApplicationLive
                     string updatedKeyboardsString = JsonSerializer.Serialize(keyboardsData);
 
                     // Write the updated JSON strings back to the files 
-                    WriteJsonFile(Keyboards, updatedKeyboardsString);
+                    WriteJsonFile(SubKeyboardPath, updatedKeyboardsString);
                 }
 
                 return true;
@@ -474,82 +521,154 @@ namespace KeyboardApplicationLive
         {
             try
             {
-                string applicationManagerString = ReadJsonFile(ApplicationManager);
-                string keyboardsString = ReadJsonFile(Keyboards);
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string keyboardsString = ReadJsonFile(SubKeyboardPath);
 
                 var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
-                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardsModel>>(keyboardsString);
+                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardModel>>(keyboardsString);
 
                 if (applicationManagerData != null && keyboardsData != null)
                 {
                     var keysData = JsonSerializer.Deserialize<List<List<KeysMapps>>>(json);
-                    if (keyboardId != 1)
-                    {
-                        applicationManagerData.last_used_keyboard_id = keyboardId;
-                        applicationManagerData.keyboard_name = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId && rec.deleteflag == 0)?.keyboard_name;
-                        foreach (var item in keyboardsData)
-                        {
-                            if (item.keyboard_id == keyboardId)
+                    //if (keyboardId != 1)
+                    //{
+                        var last_updated = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId && rec.deleteflag == 0);
+                        if (last_updated != null) {
+                            //applicationManagerData.last_used_main_id = last_updated.main_id;
+                            //applicationManagerData.last_used_keyboard_id = keyboardId;
+                            applicationManagerData.keyboard_name = last_updated.keyboard_name;
+                            foreach (var item in keyboardsData)
                             {
-                                if (keysData != null)
+                                if (item.keyboard_id == keyboardId)
                                 {
-                                    item.keys = keysData;
-                                    item.is_modified = 1;
-                                }
-                                else
-                                {
-                                    item.keys = new List<List<KeysMapps>>();
-                                }
-                                item.deleteflag = 0;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var newKeyboard = new KeyboardsModel
-                        {
-                            keyboard_id = keyboardsData.Count + 1,
-                            keyboard_name = "Keyboard-" + (keyboardsData.Count(rec => rec.keyboard_name != null && rec.keyboard_name.Contains("Keyboard-")) + 1).ToString(),
-                            deleteflag = 0,
-                            is_modified = 0
-                        };
-
-                        if (keysData != null)
-                        {
-                            foreach (var row in keysData)
-                            {
-                                foreach (var key in row)
-                                {
-                                    if (key.mod == 1)
+                                    if (keysData != null)
                                     {
-                                        key.@char = key.modchar;
-                                        key.modchar = string.Empty;
-                                        key.mod = 0;
+                                        item.keys = keysData;
+                                        item.is_modified = 1;
                                     }
                                     else
                                     {
-                                        key.modchar = string.Empty;
+                                        item.keys = new List<List<KeysMapps>>();
                                     }
+                                    item.deleteflag = 0;
                                 }
-                            }
-
-                            newKeyboard.keys = keysData;
-                            keyboardsData.Add(newKeyboard);
-
-                            applicationManagerData.last_used_keyboard_id = newKeyboard.keyboard_id;
-                            applicationManagerData.keyboard_name = newKeyboard.keyboard_name;
-                        }
+                            } 
                     }
-
+               
                     // Serialize the updated data back to JSON strings
                     string updatedApplicationManagerString = JsonSerializer.Serialize(applicationManagerData);
                     string updatedKeyboardsString = JsonSerializer.Serialize(keyboardsData);
 
                     // Write the updated JSON strings back to the files
-                    WriteJsonFile(ApplicationManager, updatedApplicationManagerString);
-                    WriteJsonFile(Keyboards, updatedKeyboardsString);
+                    WriteJsonFile(ApplicationManagerPath, updatedApplicationManagerString);
+                    WriteJsonFile(SubKeyboardPath, updatedKeyboardsString);
                 }
 
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if necessary
+                File.AppendAllText(Path.Combine(appDataPath, "error_log.txt"), ex.ToString());
+                return false;
+            }
+        }
+        public async Task<int> DoCreateOrGroupNewKeyboard(string languageName, string scriptName)
+        {
+            try
+            {
+                languageName = languageName.Trim();
+                scriptName = scriptName.Trim();
+
+                string applicationManagerString = ReadJsonFile(ApplicationManagerPath);
+                string MainKeyboardString = ReadJsonFile(MainKeyboardPath);
+                string SubkeyboardsString = ReadJsonFile(SubKeyboardPath);
+
+                var applicationManagerData = JsonSerializer.Deserialize<ApplicationManagerModel>(applicationManagerString);
+                var MainKeyboardData = JsonSerializer.Deserialize<List<MainKeyboardModel>>(MainKeyboardString);
+                var SubKeyboardData = JsonSerializer.Deserialize<List<KeyboardModel>>(SubkeyboardsString);
+
+                if (applicationManagerData != null && MainKeyboardData != null && SubKeyboardData != null)
+                {
+                    if(!string.IsNullOrEmpty(languageName) && !string.IsNullOrEmpty(scriptName))
+                    {
+                        var main = MainKeyboardData.FirstOrDefault(rec => rec.deleteflag == 0 && rec.main_keyboard_name.ToLower() == languageName.ToLower());
+                        if ( main == null)
+                        {
+                            MainKeyboardModel newmain = new MainKeyboardModel();
+                            newmain.main_id = MainKeyboardData.Count() + 1;
+                            newmain.main_keyboard_name = languageName;
+                            newmain.deleteflag = 0;
+                            MainKeyboardData.Add(newmain);
+                            main = newmain;
+                        }
+
+                        var scriptKeyboards = SubKeyboardData.Where(rec => rec.deleteflag == 0 &&
+                            rec.keyboard_name.ToLower() == scriptName.ToLower() &&
+                            rec.main_id == main.main_id).ToList();
+                        if(scriptKeyboards.Count() > 0)
+                        {
+                            return 1; // already exist;
+                        }
+                        else
+                        {
+                            var newtemplate = applicationManagerData.template;
+                            if (newtemplate != null)
+                            {
+                                newtemplate.main_id = main.main_id;
+                                newtemplate.keyboard_id = SubKeyboardData.Count() + 1;
+                                newtemplate.keyboard_name = scriptName;
+                                SubKeyboardData.Add(newtemplate);
+
+                                //applicationManagerData.last_used_main_id = main.main_id;
+                                //applicationManagerData.last_used_keyboard_id  = newtemplate.keyboard_id;
+                                applicationManagerData.list_of_languages.Add(scriptName);
+                            }
+                        }
+                    }
+
+                    // Serialize the updated data back to JSON strings
+                    string updatedApplicationManagerString = JsonSerializer.Serialize(applicationManagerData);
+                    string updatedMainKeyboardsString = JsonSerializer.Serialize(MainKeyboardData);
+                    string updatedSubKeyboardsString = JsonSerializer.Serialize(SubKeyboardData);
+
+                    // Write the updated JSON strings back to the files
+                    WriteJsonFile(ApplicationManagerPath, updatedApplicationManagerString);
+                    WriteJsonFile(MainKeyboardPath, updatedMainKeyboardsString);
+                    WriteJsonFile(SubKeyboardPath, updatedSubKeyboardsString);
+                }
+                return 0; // success;
+            }
+            catch (Exception ex)
+            {
+                // Log the exception if necessary
+                File.AppendAllText(Path.Combine(appDataPath, "error_log.txt"), ex.ToString());
+                return -1; // error
+            }
+        }
+        public bool DoUpdateCompData(string json, int keyboardId)
+        {
+            try
+            {
+                string keyboardsString = ReadJsonFile(SubKeyboardPath);
+
+                var keyboardsData = JsonSerializer.Deserialize<List<KeyboardModel>>(keyboardsString);
+
+                if (keyboardsData != null)
+                {
+                    var compData = JsonSerializer.Deserialize<List<comp>>(json);
+                    var last_updated = keyboardsData.FirstOrDefault(rec => rec.keyboard_id == keyboardId && rec.deleteflag == 0);
+                    if (last_updated != null)
+                    {
+                        if(compData != null)
+                            last_updated.compList = compData;
+                        else
+                            last_updated.compList = new List<comp>();
+                    }
+
+                    string updatedKeyboardsString = JsonSerializer.Serialize(keyboardsData);
+                    WriteJsonFile(SubKeyboardPath, updatedKeyboardsString);
+                }
                 return true;
             }
             catch (Exception ex)
@@ -569,7 +688,7 @@ namespace KeyboardApplicationLive
                     {
                         Directory.CreateDirectory(DownloadPath);
                     }
-                    string filename = "ml_keyboard_mdofied_keys_" + DateTime.Now.ToString("ddMMyyyyHHmmss") + ".json";
+                    string filename = "ml_keyboard_modified_keys_" + DateTime.Now.ToString("ddMMyyyyHHmmss") + ".json";
                     WriteJsonFile(Path.Combine(DownloadPath, filename), jsonstring);
                 }
                 return true;
